@@ -91,25 +91,25 @@ public class SuicideCommandMain : Plugin {
 
         // 执行指令
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response) {
-            var config = Setting!;
+            var config = Setting;
             var player = Player.Get(sender);
 
             if (player == null) {
                 // 非玩家
-                response = config.CommandResponseNotPlayer;
+                response = config?.CommandResponseNotPlayer ?? "You're not a player.";
                 return false;
             }
 
             if (!player.IsAlive) {
                 // 玩家未存活
-                response = config.CommandResponseNotAlive;
+                response = config?.CommandResponseNotAlive ?? "You're not alive.";
                 return false;
             }
 
             // 杀死玩家
-            player.Kill(config.CauseOfDeath);
+            player.Kill(config?.CauseOfDeath ?? "He/she committed suicide~");
             // 成功
-            response = config.CommandResponseSuccess;
+            response = config?.CommandResponseSuccess ?? "Now you dead~";
             return true;
         }
     }
