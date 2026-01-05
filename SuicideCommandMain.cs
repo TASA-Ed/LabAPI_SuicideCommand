@@ -32,7 +32,7 @@ public class SuicideCommandMain : Plugin {
     /// <summary>
     /// 插件版本。
     /// </summary>
-    public override Version Version => new(1, 0, 0, 0);
+    public override Version Version => new(1, 0, 1, 0);
 
     /// <summary>
     /// 需要的 LabApi 版本。
@@ -42,7 +42,7 @@ public class SuicideCommandMain : Plugin {
     /// <summary>
     /// 插件配置。
     /// </summary>
-    public SuicideCommandConfig? Config = new();
+    public SuicideCommandConfig? Config { get; private set; }
 
     // 加载配置时
     public override void LoadConfigs() {

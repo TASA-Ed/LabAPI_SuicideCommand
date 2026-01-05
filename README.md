@@ -8,10 +8,6 @@ A LabAPI plugin that provides a suicide command.
 
 一个 LabAPI 插件，提供一个自杀指令。
 
-**Only Windows.**
-
-**仅 Windows。**
-
 ## Use / 使用
 
 Download LabAPI_SuicideCommand_x64.dll from Releases and place it in `%appdata%\SCP Secret Laboratory\LabAPI\plugins\<port>`.
