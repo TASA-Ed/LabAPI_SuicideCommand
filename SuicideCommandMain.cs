@@ -11,54 +11,47 @@ namespace LabAPI_SuicideCommand;
 /// <summary>
 /// 自杀命令 插件。
 /// </summary>
-public class SuicideCommandMain : Plugin {
+public sealed class SuicideCommandMain : Plugin {
+    // 默认配置
+    private static readonly SuicideCommandConfig DefaultConfig = new();
+
     /// <summary>
     /// 单例模式。
     /// </summary>
     public static SuicideCommandMain? MainSingleton { get; private set; }
 
-    /// <summary>
-    /// 插件名称。
-    /// </summary>
+    /// <inheritdoc />
     public override string Name => "Suicide Command Plugin";
-    /// <summary>
-    /// 插件描述。
-    /// </summary>
+    /// <inheritdoc />
     public override string Description => "Player suicide command plugin";
-    /// <summary>
-    /// 插件作者。
-    /// </summary>
+    /// <inheritdoc />
     public override string Author => "TASA-Ed Studio";
-    /// <summary>
-    /// 插件版本。
-    /// </summary>
-    public override Version Version => new(1, 0, 1, 0);
+    /// <inheritdoc />
+    public override Version Version => new(1, 1, 0, 0);
 
-    /// <summary>
-    /// 需要的 LabApi 版本。
-    /// </summary>
+    /// <inheritdoc />
     public override Version RequiredApiVersion => new(LabApiProperties.CompiledVersion);
 
     /// <summary>
     /// 插件配置。
     /// </summary>
-    public SuicideCommandConfig? Config { get; private set; }
+    public SuicideCommandConfig? Config { get; private set; } = DefaultConfig;
 
-    // 加载配置时
+    /// <inheritdoc />
     public override void LoadConfigs() {
         base.LoadConfigs();
-        Config = this.LoadConfig<SuicideCommandConfig>("configs.yml") ?? new SuicideCommandConfig();
-        SuicideCommand.Setting = Config;
+        Config = this.LoadConfig<SuicideCommandConfig>("configs.yml") ?? DefaultConfig;
+        SuicideCommand.UpdateConfig(Config);
     }
 
-    // 启用插件时
+    /// <inheritdoc />
     public override void Enable() {
         MainSingleton = this;
     }
 
-    // 禁用插件时
+    /// <inheritdoc />
     public override void Disable() {
-        SuicideCommand.Setting = null;
+        SuicideCommand.UpdateConfig(null);
         Config = null;
         MainSingleton = null;
     }
@@ -67,49 +60,54 @@ public class SuicideCommandMain : Plugin {
     /// 注册一个允许玩家瞬间杀死自己的指令。
     /// </summary>
     [CommandHandler(typeof(ClientCommandHandler))]
-    public class SuicideCommand : ICommand {
-        private static SuicideCommandConfig? _setting;
-        private static readonly SuicideCommandConfig DefaultConfig = new();
-        private static readonly string[] DefaultAliases = ["killme", "killself"];
+    public sealed class SuicideCommand : ICommand {
+        private static SuicideCommandConfig _config = DefaultConfig;
 
-        public static SuicideCommandConfig? Setting {
-            get {
-                _setting ??= DefaultConfig;
-                return _setting;
-            }
-            set => _setting = value;
-        }
-
-        // 指令名称
+        /// <summary>
+        /// 指令名称
+        /// </summary>
         public string Command => "suicide";
 
-        // 指令别名
-        public string[] Aliases => Setting?.CommandAlias ?? DefaultAliases;
+        /// <summary>
+        /// 指令别名
+        /// </summary>
+        public string[] Aliases => _config.CommandAlias;
 
-        // 指令描述
-        public string Description => Setting?.CommandDescription ?? "Suicide command";
+        /// <summary>
+        /// 指令描述
+        /// </summary>
+        public string Description => _config.CommandDescription;
 
-        // 执行指令
+        /// <summary>
+        /// 更新命令配置。
+        /// </summary>
+        internal static void UpdateConfig(SuicideCommandConfig? config) {
+            _config = config ?? DefaultConfig;
+        }
+
+        /// <summary>
+        /// 执行指令
+        /// </summary>
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response) {
-            var config = Setting;
             var player = Player.Get(sender);
 
             if (player == null) {
                 // 非玩家
-                response = config?.CommandResponseNotPlayer ?? "You're not a player.";
+                response = _config.CommandResponseNotPlayer;
                 return false;
             }
 
             if (!player.IsAlive) {
                 // 玩家未存活
-                response = config?.CommandResponseNotAlive ?? "You're not alive.";
+                response = _config.CommandResponseNotAlive;
                 return false;
             }
 
+            if (player.IsSCP)
             // 杀死玩家
-            player.Kill(config?.CauseOfDeath ?? "He/she committed suicide~");
+            player.Kill(_config.CauseOfDeath);
             // 成功
-            response = config?.CommandResponseSuccess ?? "Now you dead~";
+            response = _config.CommandResponseSuccess;
             return true;
         }
     }
@@ -118,7 +116,7 @@ public class SuicideCommandMain : Plugin {
 /// <summary>
 /// 插件配置类。
 /// </summary>
-public class SuicideCommandConfig {
+public sealed class SuicideCommandConfig {
     // 所有配置必须为可 set
     public string[] CommandAlias { get; set; } = ["killme", "killself"];
     public string CommandDescription { get; set; } = "Suicide command";
@@ -127,4 +125,3 @@ public class SuicideCommandConfig {
     public string CauseOfDeath { get; set; } = "He/she committed suicide~";
     public string CommandResponseSuccess { get; set; } = "Now you dead~";
 }
-
