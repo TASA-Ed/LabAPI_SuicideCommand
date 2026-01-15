@@ -28,7 +28,7 @@ public sealed class SuicideCommandMain : Plugin {
     /// <inheritdoc />
     public override string Author => "TASA-Ed Studio";
     /// <inheritdoc />
-    public override Version Version => new(1, 1, 0, 0);
+    public override Version Version => new(1, 0, 2, 0);
 
     /// <inheritdoc />
     public override Version RequiredApiVersion => new(LabApiProperties.CompiledVersion);
