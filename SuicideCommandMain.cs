@@ -5,6 +5,7 @@ using LabApi.Features.Wrappers;
 using LabApi.Loader;
 using LabApi.Loader.Features.Plugins;
 using System;
+using PlayerStatsSystem;
 
 namespace LabAPI_SuicideCommand;
 
@@ -104,6 +105,8 @@ public sealed class SuicideCommandMain : Plugin {
             }
 
             if (player.IsSCP)
+                Announcer.ScpTermination(player, new UniversalDamageHandler());
+
             // 杀死玩家
             player.Kill(_config.CauseOfDeath);
             // 成功
